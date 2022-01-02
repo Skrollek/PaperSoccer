@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <string.h>
 //#include "board.h"
 #include "draw.h"
 
@@ -48,11 +49,12 @@ static void app_activate (GApplication *app, gpointer *user_data)
     gtk_box_append(GTK_BOX(box), btnStart);
     gtk_box_append(GTK_BOX(box), btnOption);
     gtk_box_append(GTK_BOX(box), btnQuit);
-
-    //gtk_widget_get_style_context(GTK_WIDGET(btnStart));
-    //char* css = "text-button\n{\n    font-size: 50pt; \n}";
-
-    //gtk_widget_add_css_class(GTK_WIDGET(btnStart), css);
+    char* css = ".text-button{font-size: 50pt;}";
+    GtkCssProvider* fontCSS=  gtk_css_provider_new();
+    gtk_css_provider_load_from_data(fontCSS, css, strlen(css));
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnStart)), fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnOption)), fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnQuit)), fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     gtk_widget_show (win);
 }

@@ -8,6 +8,8 @@ Board* initializeBoard(uint16_t initialWidth, uint16_t initialHeight)
     newBoard->height = ++initialHeight;
     newBoard->visited = malloc(sizeof(bool)*initialHeight*initialWidth);
     newBoard->directionUsed = malloc(sizeof(bool)*initialHeight*initialWidth*8);
+    newBoard->ballX = initialWidth/2;
+    newBoard->ballY = initialHeight/2;
     return newBoard;
 }
 

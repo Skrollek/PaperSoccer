@@ -6,7 +6,7 @@ GTK = `pkg-config --cflags gtk4` -lm
 LIBS = `pkg-config --libs gtk4` -lm
 NAME = PaperSoccer
 
-OBJS = main.o board.o logic.o
+OBJS = main.o board.o logic.o draw.o
 
 all: $(OBJS)
 	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LIBS)

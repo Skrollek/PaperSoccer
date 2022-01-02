@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef BOARD_H
+#define BOARD_H
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -12,6 +12,8 @@ typedef struct Board
 {
     uint16_t width;
     uint16_t height;
+    uint16_t ballX;
+    uint16_t ballY;
     bool* visited;
     bool* directionUsed;
 } Board;
@@ -19,3 +21,4 @@ typedef struct Board
 Board* initializeBoard(uint16_t initialWidth, uint16_t initialHeight);
 bool* boardVisitedAt(Board* board, uint16_t x, uint16_t y);
 bool* boardDirectionUsedAt(Board* board, uint16_t x, uint16_t y, Direction direction);
+#endif

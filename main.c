@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <gtk/gtk.h>
-GtkWidget *scene[3];
 #include "callbacks.h"
 
 int main(int argc,char **argv)

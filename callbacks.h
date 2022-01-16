@@ -12,7 +12,6 @@ typedef struct ActivationData
     GtkWidget *widthLabel;
 } ActivationData;
 
-extern GtkWidget *scene[3];
 void quitCallback(GtkButton *button, gpointer userData);
 void startCallback(GtkButton *button, gpointer userData);
 void optionCallback(GtkButton *button, gpointer userData);

@@ -1,4 +1,5 @@
 #include "callbacks.h"
+#include "draw.h"
 
 void quitCallback(GtkButton *button, gpointer userData)
 {
@@ -8,6 +9,9 @@ void quitCallback(GtkButton *button, gpointer userData)
 void startCallback(GtkButton *button, gpointer userData)
 {
     g_print("Game started\n");
+    GtkWidget *stack = GTK_WIDGET(userData);
+    gtk_stack_set_visible_child_name(GTK_STACK(stack), "Game");
+
 }
 void optionCallback(GtkButton *button, gpointer userData)
 {
@@ -87,6 +91,11 @@ void decreaseBoardSizeWidth(GtkButton *button, gpointer userData)
     }
 }
 
+void drawCallback(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer data)
+{
+    draw(area, cr, width, height, (Board*) data);
+}
+
 
 void appActivate (GApplication *app, gpointer userData) 
 {
@@ -109,7 +118,7 @@ void appActivate (GApplication *app, gpointer userData)
 
     win = gtk_application_window_new(GTK_APPLICATION(app));  
     gtk_window_set_title(GTK_WINDOW(win), "PaperSoccer");
-    gtk_window_set_default_size(GTK_WINDOW(win), 800, 600);
+    gtk_window_set_default_size(GTK_WINDOW(win), 800, 800);
     gtk_window_set_resizable(GTK_WINDOW(win), 0);
     gtk_window_set_child(GTK_WINDOW(win), scenes);
     /// creating main menu
@@ -133,6 +142,12 @@ void appActivate (GApplication *app, gpointer userData)
     char* css = ".text-button{font-size: 50pt;}";
     GtkCssProvider* fontCSS =  gtk_css_provider_new();
     gtk_css_provider_load_from_data(fontCSS, css, strlen(css));
+
+    char* cssLabel = ".title{font-size: 50pt;}";
+    GtkCssProvider* labelCSS = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(labelCSS, cssLabel, strlen(cssLabel));
+
+    
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnStart)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnOption)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnQuit)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -151,38 +166,48 @@ void appActivate (GApplication *app, gpointer userData)
     toAttach = gtk_label_new("Height:12");
     data->heightLabel = toAttach;
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 2, 0, 1, 1);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)labelCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
 
     toAttach = gtk_button_new_with_label("<-");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 0, 0, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(decreaseBoardSizeHeight), (gpointer)data);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     toAttach = gtk_button_new_with_label("->");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 3, 0, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(increaseBoardSizeHeight), (gpointer)data);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     
     toAttach = gtk_label_new("Width:8");
     data->widthLabel = toAttach;
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 2, 1, 1, 1);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)labelCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     toAttach = gtk_button_new_with_label("<-");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 0, 1, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(decreaseBoardSizeWidth), (gpointer)data);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     
     toAttach = gtk_button_new_with_label("->");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 3, 1, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(increaseBoardSizeWidth), (gpointer)data);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     toAttach = gtk_button_new_with_label("Exit to menu");
-    g_signal_connect(toAttach, "clicked", G_CALLBACK(ExitToMenuCallback), (gpointer)scenes);
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 0, 2, 5, 1);
+    g_signal_connect(toAttach, "clicked", G_CALLBACK(ExitToMenuCallback), (gpointer)scenes);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    
 
     gtk_stack_add_named(GTK_STACK(scenes), optionsGrid, "Options");
 
 
     // creating game scene
+    gameScene = gtk_drawing_area_new();
 
-    //gtk_stack_add_named(GTK_STACK(scenes), gameScene, "Game");
-
+    gtk_stack_add_named(GTK_STACK(scenes), gameScene, "Game");
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA (gameScene), drawCallback, (gpointer)board, NULL);
     gtk_widget_show (win);
 }

@@ -35,3 +35,7 @@ bool isMovePossible(Board* board, uint16_t xStart, uint16_t yStart,  uint16_t xT
     if(direction != Error) return directionOccupied(board, xStart, yStart, direction);
     else return false;
 }
+uint8_t calculatePossibleMoves(Board *board, uint16_t xStart, uint16_t yStart)
+{
+    uint8_t result;
+}

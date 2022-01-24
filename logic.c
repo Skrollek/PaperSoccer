@@ -15,7 +15,7 @@ bool directionOccupied(Board* board, uint16_t xStart, uint16_t yStart, Direction
     return *boardDirectionUsedAt(board, xStart, yStart, direction);
 }
 
-Direction coordsToDirection(uint16_t xStart, uint16_t yStart,  uint16_t xTarget, uint16_t yTarget)
+Direction coordsToDirection(uint16_t xStart, uint16_t yStart, uint16_t xTarget, uint16_t yTarget)
 {
     if      ((xStart == xTarget) && (yStart + 1 == yTarget))     { return North; }
     else if ((xStart + 1 == xTarget) && (yStart + 1 == yTarget)) { return  NorthEast; }
@@ -37,5 +37,6 @@ bool isMovePossible(Board* board, uint16_t xStart, uint16_t yStart,  uint16_t xT
 }
 uint8_t calculatePossibleMoves(Board *board, uint16_t xStart, uint16_t yStart)
 {
-    uint8_t result;
+    uint8_t result = 0b1111111;
+    return result;
 }

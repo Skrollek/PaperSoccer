@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 #include <cairo/cairo.h>
 #include "board.h"
+#include "logic.h"
 
 void drawToConsole(Board* board);
 void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, Board *board);//gpointer user_data)

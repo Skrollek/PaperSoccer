@@ -22,28 +22,42 @@ void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, Board *board
 {
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 2);
-    cairo_translate(cr, 100, 100);
+    double squareSize = 600.0/(board->width-1);
+    if(600.0/(board->height+1) < squareSize) squareSize = 600.0/(board->height+1);
+    cairo_translate(cr, 400-squareSize*((board->width)/2), 400-squareSize*((board->height)/2));
     //drawing board section
-    for(int y = 0; y < board->height; ++y)
+    cairo_rectangle(cr, squareSize*((board->width)/2) - squareSize, -squareSize, squareSize, squareSize);
+    cairo_rectangle(cr, squareSize*((board->width)/2), -squareSize, squareSize, squareSize);
+    for(int y = 0; y < board->height-1; ++y)
     {
-        cairo_move_to(cr, 0, (600.0/(board->height-1))*y);
-        cairo_line_to(cr, 600, (600.0/(board->height-1))*y);
-        for(int x = 0; x < board->width; ++x)
+        for(int x = 0; x < board->width-1; ++x)
         {
-            cairo_move_to(cr, (600.0/(board->width-1))*x, (600.0/(board->height))*y);
-            cairo_line_to(cr, (600.0/(board->width-1))*x, (600.0/(board->height))*(y+1));
+            cairo_rectangle(cr, squareSize*x, squareSize*y, squareSize, squareSize);
         }
-        
     }
+    cairo_rectangle(cr, squareSize*((board->width)/2) - squareSize, squareSize*((board->height)) - squareSize, squareSize, squareSize);
+    cairo_rectangle(cr, squareSize*((board->width)/2), squareSize*((board->height)) - squareSize, squareSize, squareSize);
     cairo_stroke(cr);
     // drawing possible moves section
+
+    cairo_set_source_rgb(cr, 255, 255, 0);
+    cairo_set_line_width(cr, 1);
+    uint8_t possibleMoves = calculatePossibleMoves(board,board->ballX, board->ballY);
+    for(int i = 0; i < 8; ++i)
+    {
+        if(possibleMoves & (1 << i)) // unfished, have to select correct square to draw
+            cairo_arc(cr, squareSize*((board->width)/2) + squareSize, squareSize*((board->height)/2) + squareSize, 4, 0, 6.2830);
+    }
+    cairo_fill_preserve(cr);
+    cairo_stroke(cr);
+    
 
     // drawing used moves section
 
     // drawing ball section
     cairo_set_source_rgb(cr, 255, 0, 0);
     cairo_set_line_width(cr, 1);
-    cairo_arc(cr, (600.0/(board->width-1))*((board->width)/2), (600.0/(board->height-1))*((board->height)/2), 4, 0, 6.2830);
+    cairo_arc(cr, squareSize*((board->width)/2), squareSize*((board->height)/2), 4, 0, 6.2830);
     cairo_fill_preserve(cr);
     cairo_stroke(cr);
 }

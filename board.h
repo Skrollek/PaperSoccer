@@ -2,6 +2,7 @@
 #define BOARD_H
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef enum Direction
 {

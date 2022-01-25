@@ -39,17 +39,24 @@ void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, Board *board
     cairo_rectangle(cr, squareSize*((board->width)/2), squareSize*((board->height)) - squareSize, squareSize, squareSize);
     cairo_stroke(cr);
     // drawing possible moves section
-
-    cairo_set_source_rgb(cr, 255, 255, 0);
+    cairo_set_source_rgb(cr, 0,100,0);
     cairo_set_line_width(cr, 1);
-    uint8_t possibleMoves = calculatePossibleMoves(board,board->ballX, board->ballY);
+    uint8_t possibleMoves = calculatePossibleMoves(board,board->ballX, board->ballY); 
     for(int i = 0; i < 8; ++i)
     {
-        if(possibleMoves & (1 << i)) // unfished, have to select correct square to draw
-            cairo_arc(cr, squareSize*((board->width)/2) + squareSize, squareSize*((board->height)/2) + squareSize, 4, 0, 6.2830);
+        if(possibleMoves & (1 << i))
+        {
+            int32_t coords = directionToCoords(i);
+            int16_t coordX = getXCoordFromInt(coords);
+            int16_t coordY = getYCoordFromInt(coords);
+            cairo_arc(cr, squareSize*(board->ballX) + coordX*squareSize, squareSize*(board->ballY) - coordY*squareSize, 4, 0, 6.2830);
+            cairo_fill_preserve(cr);
+            cairo_stroke(cr);
+        }
+            
     }
-    cairo_fill_preserve(cr);
-    cairo_stroke(cr);
+    
+    
     
 
     // drawing used moves section
@@ -57,7 +64,7 @@ void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, Board *board
     // drawing ball section
     cairo_set_source_rgb(cr, 255, 0, 0);
     cairo_set_line_width(cr, 1);
-    cairo_arc(cr, squareSize*((board->width)/2), squareSize*((board->height)/2), 4, 0, 6.2830);
+    cairo_arc(cr, squareSize*(board->ballX), squareSize*(board->ballY), 4, 0, 6.2830);
     cairo_fill_preserve(cr);
     cairo_stroke(cr);
 }

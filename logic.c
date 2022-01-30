@@ -87,3 +87,13 @@ uint8_t calculatePossibleMoves(Board *board, uint16_t xStart, uint16_t yStart)
     return result;
 }
 
+bool gameEnded(Board *board)
+{
+    if(board->ballY == 0 || board->ballY == board->height - 1) // x check should not be necessary!
+        return true;
+    if(calculatePossibleMoves(board, board->ballX, board->ballY) == 0)
+        return true;
+    return false;
+    
+}
+

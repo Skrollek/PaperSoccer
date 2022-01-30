@@ -11,6 +11,7 @@ int32_t directionToCoords(Direction direction);
 int16_t getXCoordFromInt(uint32_t coords);
 int16_t getYCoordFromInt(uint32_t coords);
 uint8_t calculatePossibleMoves(Board *board, uint16_t xStart, uint16_t yStart);
+bool gameEnded(Board *board);
 
 
 #endif

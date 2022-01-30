@@ -32,13 +32,13 @@ void increaseBoardSizeHeight(GtkButton *button, gpointer userData)
 {
     ActivationData *data = userData;
     GtkWidget *label = data->heightLabel;
-    if(data->board->height < 200)
+    if(data->board->height - 3 < 40)
     {
         data->board->height += 2;
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->height-1, number, 10);
+        char number[5]; itoa(data->board->height-3, number, 10);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -49,13 +49,13 @@ void decreaseBoardSizeHeight(GtkButton *button, gpointer userData)
 {
     ActivationData *data = userData;
     GtkWidget *label = data->heightLabel;
-    if(data->board->height > 6)
+    if(data->board->height - 3 > 4)
     {
         data->board->height -= 2;
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->height-1, number, 10);
+        char number[5]; itoa(data->board->height-3, number, 10);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -65,7 +65,7 @@ void increaseBoardSizeWidth(GtkButton *button, gpointer userData)
 {
     ActivationData *data = userData;
     GtkWidget *label = data->widthLabel;
-    if(data->board->width < 200)
+    if(data->board->width < 40)
     {
         data->board->width += 2;
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
@@ -81,7 +81,7 @@ void decreaseBoardSizeWidth(GtkButton *button, gpointer userData)
 {
     ActivationData *data = userData;
     GtkWidget *label = data->widthLabel;
-    if(data->board->width >6)
+    if(data->board->width > 6)
     {
         data->board->width -= 2;
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
@@ -103,12 +103,14 @@ void clickedCallback(GtkGestureClick *gesture, int noPress, double x, double y)
     ActivationData *data = g_object_get_data(G_OBJECT(gesture), "ActivationData");
     Board *board = data->board;
     double squareSize = 600.0/(board->width-1);
-    if(600.0/(board->height+1) < squareSize) squareSize = 600.0/(board->height+1);
-    double xTranslate = 100;
-    double yTranslate = 100;
-    int32_t alfa = floor((x - xTranslate + squareSize/2)/squareSize) -1; // ???
-    int32_t beta = floor((y - yTranslate + squareSize/2)/squareSize) -1; // ???
-    printf("%d %d\n", alfa, beta);
+    if(600.0/(board->height+1) < squareSize) squareSize = 600.0/(board->height-1);
+    double xTranslate = 400-squareSize*((board->width)/2);
+    double yTranslate = 400-squareSize*((board->height)/2);
+    int32_t alfa = (int32_t)floor((x - xTranslate + squareSize/2)/squareSize); // ???
+    int32_t beta = (int32_t)floor((y - yTranslate + squareSize/2)/squareSize); // ???
+    //printf("%f %f\n", xTranslate, yTranslate);
+    //printf("%f %f\n", x, y);
+    //printf("%d %d\n", alfa, beta);
     uint8_t possibleMoves = calculatePossibleMoves(board, board->ballX, board->ballY);
     Direction direction = coordsToDirection(board->ballX, board->ballY, alfa, beta);
     if(direction != Error)
@@ -142,7 +144,7 @@ void appActivate (GApplication *app, gpointer userData)
 
     GtkWidget *gameScene;
 
-    Board* board = initializeBoard(4, 4);
+    Board* board = initializeBoard(8, 12);
     data->board = board;
 
     win = gtk_application_window_new(GTK_APPLICATION(app));  
@@ -231,8 +233,7 @@ void appActivate (GApplication *app, gpointer userData)
     // creating game scene
     GtkGesture *clickController = gtk_gesture_click_new();
     g_object_set_data(G_OBJECT(clickController), "ActivationData", (gpointer)data);
-    g_signal_connect (clickController, "pressed",
-                            G_CALLBACK (clickedCallback), (gpointer)data);
+    g_signal_connect (clickController, "pressed", G_CALLBACK (clickedCallback), (gpointer)data);
     gameScene = gtk_drawing_area_new();
     gtk_widget_add_controller(gameScene, GTK_EVENT_CONTROLLER(clickController));
     gtk_stack_add_named(GTK_STACK(scenes), gameScene, "Game");

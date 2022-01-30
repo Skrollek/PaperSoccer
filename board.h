@@ -1,5 +1,9 @@
 #ifndef BOARD_H
 #define BOARD_H
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -22,4 +26,5 @@ typedef struct Board
 Board* initializeBoard(uint16_t initialWidth, uint16_t initialHeight);
 bool* boardVisitedAt(Board* board, uint16_t x, uint16_t y);
 bool* boardDirectionUsedAt(Board* board, uint16_t x, uint16_t y, Direction direction);
+void startBoardData(Board* board);
 #endif

@@ -9,20 +9,22 @@ void quitCallback(GtkButton *button, gpointer userData)
 void startCallback(GtkButton *button, gpointer userData)
 {
     g_print("Game started\n");
-    GtkWidget *stack = GTK_WIDGET(userData);
+    ActivationData *data = (ActivationData*)userData;
+    startBoardData(data->board);
+    GtkWidget *stack = data->scenes;
     gtk_stack_set_visible_child_name(GTK_STACK(stack), "Game");
 
 }
 void optionCallback(GtkButton *button, gpointer userData)
 {
     g_print("Options started\n");
-    GtkWidget *stack = GTK_WIDGET(userData);
+    GtkWidget *stack = ((ActivationData*)userData)->scenes;
     gtk_stack_set_visible_child_name(GTK_STACK(stack), "Options");
 }
 void ExitToMenuCallback(GtkButton *button, gpointer userData)
 {
     g_print("Exit to menu\n");
-    GtkWidget *stack = GTK_WIDGET(userData);
+    GtkWidget *stack = ((ActivationData*)userData)->scenes;
     gtk_stack_set_visible_child_name(GTK_STACK(stack), "Menu");
 }
 
@@ -93,9 +95,35 @@ void decreaseBoardSizeWidth(GtkButton *button, gpointer userData)
 
 void drawCallback(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer data)
 {
-    draw(area, cr, width, height, (Board*) data);
+    draw(area, cr, width, height, data);
 }
 
+void clickedCallback(GtkGestureClick *gesture, int noPress, double x, double y)
+{
+    ActivationData *data = g_object_get_data(G_OBJECT(gesture), "ActivationData");
+    Board *board = data->board;
+    double squareSize = 600.0/(board->width-1);
+    if(600.0/(board->height+1) < squareSize) squareSize = 600.0/(board->height+1);
+    double xTranslate = 100;
+    double yTranslate = 100;
+    int32_t alfa = floor((x - xTranslate + squareSize/2)/squareSize) -1; // ???
+    int32_t beta = floor((y - yTranslate + squareSize/2)/squareSize) -1; // ???
+    printf("%d %d\n", alfa, beta);
+    uint8_t possibleMoves = calculatePossibleMoves(board, board->ballX, board->ballY);
+    Direction direction = coordsToDirection(board->ballX, board->ballY, alfa, beta);
+    if(direction != Error)
+    {
+        if((possibleMoves & (1 << direction)) && isMovePossible(board, board->ballX, board->ballY, direction))
+        {
+            *boardDirectionUsedAt(board, board->ballX, board->ballY, direction) = 1;
+            *boardDirectionUsedAt(board, alfa, beta, oppositeDirection(direction)) = 1;
+            *boardVisitedAt(board, alfa, beta) = 1;
+            board->ballX = alfa;
+            board->ballY = beta;
+        }
+    }
+    gtk_widget_queue_draw(gtk_stack_get_child_by_name(GTK_STACK(data->scenes), "Game"));
+}
 
 void appActivate (GApplication *app, gpointer userData) 
 {
@@ -103,6 +131,7 @@ void appActivate (GApplication *app, gpointer userData)
     ActivationData *data = (ActivationData*)userData;
 
     GtkWidget *scenes = gtk_stack_new();
+    data->scenes = scenes;
     GtkWidget *win;
     GtkWidget *boxMenu;
     GtkWidget *btnQuit;
@@ -113,7 +142,7 @@ void appActivate (GApplication *app, gpointer userData)
 
     GtkWidget *gameScene;
 
-    Board* board = initializeBoard(8, 12);
+    Board* board = initializeBoard(4, 4);
     data->board = board;
 
     win = gtk_application_window_new(GTK_APPLICATION(app));  
@@ -122,15 +151,15 @@ void appActivate (GApplication *app, gpointer userData)
     gtk_window_set_resizable(GTK_WINDOW(win), 0);
     gtk_window_set_child(GTK_WINDOW(win), scenes);
     /// creating main menu
+   
     boxMenu = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
     gtk_box_set_homogeneous(GTK_BOX(boxMenu), true);
     
-
     btnStart = gtk_button_new_with_label("Start Game");
-    g_signal_connect(btnStart, "clicked", G_CALLBACK(startCallback), (gpointer)scenes);
+    g_signal_connect(btnStart, "clicked", G_CALLBACK(startCallback), (gpointer)data);
 
     btnOption = gtk_button_new_with_label("Options");
-    g_signal_connect(btnOption, "clicked", G_CALLBACK(optionCallback), (gpointer)scenes);
+    g_signal_connect(btnOption, "clicked", G_CALLBACK(optionCallback), (gpointer)data);
     
     btnQuit = gtk_button_new_with_label("Quit");
     g_signal_connect(btnQuit, "clicked", G_CALLBACK(quitCallback), win);
@@ -147,7 +176,6 @@ void appActivate (GApplication *app, gpointer userData)
     GtkCssProvider* labelCSS = gtk_css_provider_new();
     gtk_css_provider_load_from_data(labelCSS, cssLabel, strlen(cssLabel));
 
-    
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnStart)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnOption)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(btnQuit)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -168,7 +196,6 @@ void appActivate (GApplication *app, gpointer userData)
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 2, 0, 1, 1);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)labelCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-
     toAttach = gtk_button_new_with_label("<-");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 0, 0, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(decreaseBoardSizeHeight), (gpointer)data);
@@ -178,7 +205,6 @@ void appActivate (GApplication *app, gpointer userData)
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 3, 0, 2, 1);
     g_signal_connect(toAttach, "clicked", G_CALLBACK(increaseBoardSizeHeight), (gpointer)data);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
     
     toAttach = gtk_label_new("Width:8");
     data->widthLabel = toAttach;
@@ -197,17 +223,20 @@ void appActivate (GApplication *app, gpointer userData)
 
     toAttach = gtk_button_new_with_label("Exit to menu");
     gtk_grid_attach(GTK_GRID(optionsGrid), toAttach, 0, 2, 5, 1);
-    g_signal_connect(toAttach, "clicked", G_CALLBACK(ExitToMenuCallback), (gpointer)scenes);
+    g_signal_connect(toAttach, "clicked", G_CALLBACK(ExitToMenuCallback), (gpointer)data);
     gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(toAttach)), (GtkStyleProvider*)fontCSS, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    
 
     gtk_stack_add_named(GTK_STACK(scenes), optionsGrid, "Options");
 
-
     // creating game scene
+    GtkGesture *clickController = gtk_gesture_click_new();
+    g_object_set_data(G_OBJECT(clickController), "ActivationData", (gpointer)data);
+    g_signal_connect (clickController, "pressed",
+                            G_CALLBACK (clickedCallback), (gpointer)data);
     gameScene = gtk_drawing_area_new();
-
+    gtk_widget_add_controller(gameScene, GTK_EVENT_CONTROLLER(clickController));
     gtk_stack_add_named(GTK_STACK(scenes), gameScene, "Game");
-    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA (gameScene), drawCallback, (gpointer)board, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA (gameScene), drawCallback, (gpointer)data, NULL);
+
     gtk_widget_show (win);
 }

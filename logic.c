@@ -1,3 +1,4 @@
+#include "libs.h"
 #include "logic.h"
 
 Direction oppositeDirection(Direction direction)
@@ -18,39 +19,39 @@ bool directionOccupied(Board* board, uint16_t xStart, uint16_t yStart, Direction
 
 Direction coordsToDirection(uint16_t xStart, uint16_t yStart, uint16_t xTarget, uint16_t yTarget)
 {
-    if      ((xStart == xTarget) && (yStart + 1 == yTarget))     { return North; }
-    else if ((xStart + 1 == xTarget) && (yStart + 1 == yTarget)) { return  NorthEast; }
+    if      ((xStart == xTarget) && (yStart - 1 == yTarget))     { return North; }
+    else if ((xStart + 1 == xTarget) && (yStart - 1 == yTarget)) { return  NorthEast; }
     else if ((xStart + 1 == xTarget) && (yStart == yTarget)) { return East; }
-    else if ((xStart + 1 == xTarget) && (yStart - 1 == yTarget)) { return SouthEast; }
-    else if ((xStart == xTarget) && (yStart - 1 == yTarget)) { return South; }
-    else if ((xStart - 1 == xTarget) && (yStart - 1 == yTarget)) { return SouthWest; }
+    else if ((xStart + 1 == xTarget) && (yStart + 1 == yTarget)) { return SouthEast; }
+    else if ((xStart == xTarget) && (yStart + 1 == yTarget)) { return South; }
+    else if ((xStart - 1 == xTarget) && (yStart + 1 == yTarget)) { return SouthWest; }
     else if ((xStart - 1 == xTarget) && (yStart == yTarget)) { return West; }
-    else if ((xStart - 1 == xTarget) && (yStart + 1 == yTarget)) { return NorthWest; }
+    else if ((xStart - 1 == xTarget) && (yStart - 1 == yTarget)) { return NorthWest; }
     else return Error;
 }
 
-int32_t directionToCoords(Direction direction) // returns x coord on bits from 31 to 16, and y coord on bits from 15 to 0. 0x7FFFFFF if direction was equal to "error"
+int32_t directionToCoords(Direction direction) // returns x coord on bits from 31 to 16, and y coord on bits from 15 to 0. 0x7FFF7FFF if direction was equal to "error"
 {
     switch (direction)
     {
     case North:
-        return 1;
+        return (0 << 16) | (uint16_t)(-1);
     case NorthEast:
-        return (1 << 16) | 1;
+        return (1 << 16) | (uint16_t)(-1);
     case East:
-        return (1 << 16);
+        return (1 << 16) | 0;
     case SouthEast:
-        return (1 << 16) | (uint16_t)(-1); 
+        return (1 << 16) | 1; 
     case South:
-        return (uint16_t)(-1); 
+        return (0 << 16) | 1; 
     case SouthWest:
-        return ((uint16_t)(-1) << 16) | (uint16_t)(-1);
-    case West:
-        return ((uint16_t)(-1) << 16);
-    case NorthWest:
         return ((uint16_t)(-1) << 16) | 1;
+    case West:
+        return ((uint16_t)(-1) << 16) | 0;
+    case NorthWest:
+        return ((uint16_t)(-1) << 16) | (uint16_t)(-1);
     default:
-        return 0x7FFFFFF;
+        return 0x7FFF7FFF;
     }
 }
 

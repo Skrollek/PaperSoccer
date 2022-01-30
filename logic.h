@@ -1,9 +1,6 @@
 #ifndef LOGIC_H
 #define LOGIC_H
-#include <stdbool.h>
-#include <stdint.h>
-#include <math.h>
-#include "board.h"
+#include "libs.h"
 
 Direction oppositeDirection(Direction direction);
 bool bounce(Board *board, uint16_t xTarget, uint16_t yTarget);

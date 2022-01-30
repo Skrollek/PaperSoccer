@@ -35,15 +35,15 @@ int32_t directionToCoords(Direction direction) // returns x coord on bits from 3
     switch (direction)
     {
     case North:
-        return (0 << 16) | (uint16_t)(-1);
+        return (0 << 16)              | (uint16_t)(-1);
     case NorthEast:
-        return (1 << 16) | (uint16_t)(-1);
+        return (1 << 16)              | (uint16_t)(-1);
     case East:
-        return (1 << 16) | 0;
+        return (1 << 16)              | 0;
     case SouthEast:
-        return (1 << 16) | 1; 
+        return (1 << 16)              | 1; 
     case South:
-        return (0 << 16) | 1; 
+        return (0 << 16)              | 1; 
     case SouthWest:
         return ((uint16_t)(-1) << 16) | 1;
     case West:

@@ -18,6 +18,14 @@ typedef struct ActivationData
     Board *board;
     GtkWidget *heightLabel;
     GtkWidget *widthLabel;
+    GtkWidget *mainWindow;
+    GtkWidget *secondaryWindow;
+    GtkWidget *saveWindow;
+    GtkWidget *label;
+    GtkApplication *app;
+    gulong mainWindowHandlerID;
+    gulong secondaryWindowHandlerID;
+    
 } ActivationData;
 
 #endif

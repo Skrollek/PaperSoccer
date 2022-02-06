@@ -4,14 +4,24 @@ Board* initializeBoard(uint16_t initialWidth, uint16_t initialHeight)
     Board* newBoard = (Board*)malloc(sizeof(Board));
     newBoard->width = initialWidth + 1;
     newBoard->height = initialHeight + 3; // plus 1 to convert from squares to points and plus 2 squares for gates change
+    newBoard->visited = NULL;
+    newBoard->directionUsed = NULL;
+    newBoard->moves = NULL;
+    newBoard->it = 0;
     return newBoard;
 }
 void startBoardData(Board* board)
 {
+    if(board->visited != NULL) free(board->visited);
+    if(board->directionUsed != NULL) free(board->directionUsed);
+    if(board->moves != NULL) free(board->moves);
     board->visited = calloc((board->width)*(board->height), sizeof(bool));
     board->directionUsed = calloc((board->width)*(board->height)*8, sizeof(bool));
+    board->moves = calloc((board->width)*(board->height)*32 + 2,sizeof(char));
     board->ballX = board->width/2;
-    board->ballY = board->height/2; 
+    board->ballY = board->height/2;
+    *boardVisitedAt(board, board->width/2, board->height/2) = 1;
+    board->playerOnMove = 0;
 
     // inserting base data
     // left and right border
@@ -69,14 +79,16 @@ void startBoardData(Board* board)
     }
     // special cases!
     // top gate visited
-    *boardVisitedAt(board, board->width/2 - 1, 1) = 0;
+    *boardVisitedAt(board, board->width/2 - 1, 1) = 1;
     *boardVisitedAt(board, board->width/2, 1) = 0;
-    *boardVisitedAt(board, board->width/2 + 1, 1) = 0;
+    *boardVisitedAt(board, board->width/2 + 1, 1) = 1;
     // bottom gate visited
-    *boardVisitedAt(board, board->width/2 - 1, board->height - 2) = 0;
+    *boardVisitedAt(board, board->width/2 - 1, board->height - 2) = 1;
     *boardVisitedAt(board, board->width/2, board->height - 2) = 0;
-    *boardVisitedAt(board, board->width/2 + 1, board->height - 2) = 0;
+    *boardVisitedAt(board, board->width/2 + 1, board->height - 2) = 1;
     //top gate directions
+    *boardDirectionUsedAt(board, board->width/2 - 1, 0, South) = 1;
+    *boardDirectionUsedAt(board, board->width/2 - 1, 0, SouthWest) = 1;
     *boardDirectionUsedAt(board, board->width/2 - 1, 1, NorthEast) = 0;
     *boardDirectionUsedAt(board, board->width/2 - 1, 1, East) = 0;
     
@@ -86,9 +98,13 @@ void startBoardData(Board* board)
     *boardDirectionUsedAt(board, board->width/2, 1, West) = 0;
     *boardDirectionUsedAt(board, board->width/2, 1, East) = 0;
 
+    *boardDirectionUsedAt(board, board->width/2 + 1, 0, South) = 1;
+    *boardDirectionUsedAt(board, board->width/2 + 1, 0, SouthEast) = 1;
     *boardDirectionUsedAt(board, board->width/2 + 1, 1, NorthWest) = 0;
-    *boardDirectionUsedAt(board, board->width/2 + 1, 1, West) = 0; 
+    *boardDirectionUsedAt(board, board->width/2 + 1, 1, West) = 0;
     // bottom gate directions
+    *boardDirectionUsedAt(board, board->width/2 - 1, board->height - 1, North) = 1;
+    *boardDirectionUsedAt(board, board->width/2 - 1, board->height - 1, NorthWest) = 1;
     *boardDirectionUsedAt(board, board->width/2 - 1, board->height - 2, SouthEast) = 0;
     *boardDirectionUsedAt(board, board->width/2 - 1, board->height - 2, East) = 0;
 
@@ -98,13 +114,15 @@ void startBoardData(Board* board)
     *boardDirectionUsedAt(board, board->width/2, board->height - 2, East) = 0;
     *boardDirectionUsedAt(board, board->width/2, board->height - 2, West) = 0;
 
+    *boardDirectionUsedAt(board, board->width/2 + 1, board->height - 1, North) = 1;
+    *boardDirectionUsedAt(board, board->width/2 + 1, board->height - 1, NorthEast) = 1;
     *boardDirectionUsedAt(board, board->width/2 + 1, board->height - 2, SouthWest) = 0;
     *boardDirectionUsedAt(board, board->width/2 + 1, board->height - 2, West) = 0;
 }
 
 bool* boardVisitedAt(Board* board, uint16_t x, uint16_t y)
 {
-    return &board->visited[x + y * board->width]; // return board->visited + x + y * board->width;
+    return &board->visited[x*board->height + y];
 }
 bool* boardDirectionUsedAt(Board* board, uint16_t x, uint16_t y, Direction direction)
 {

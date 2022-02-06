@@ -19,8 +19,11 @@ typedef struct Board
     uint16_t height;
     uint16_t ballX;
     uint16_t ballY;
+    bool playerOnMove;
     bool* visited;
     bool* directionUsed;
+    char* moves;
+    uint16_t it;
 } Board;
 
 Board* initializeBoard(uint16_t initialWidth, uint16_t initialHeight);

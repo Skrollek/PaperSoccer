@@ -20,12 +20,12 @@ bool directionOccupied(Board* board, uint16_t xStart, uint16_t yStart, Direction
 Direction coordsToDirection(uint16_t xStart, uint16_t yStart, uint16_t xTarget, uint16_t yTarget)
 {
     if      ((xStart == xTarget) && (yStart - 1 == yTarget))     { return North; }
-    else if ((xStart + 1 == xTarget) && (yStart - 1 == yTarget)) { return  NorthEast; }
-    else if ((xStart + 1 == xTarget) && (yStart == yTarget)) { return East; }
+    else if ((xStart + 1 == xTarget) && (yStart - 1 == yTarget)) { return NorthEast; }
+    else if ((xStart + 1 == xTarget) && (yStart == yTarget))     { return East; }
     else if ((xStart + 1 == xTarget) && (yStart + 1 == yTarget)) { return SouthEast; }
-    else if ((xStart == xTarget) && (yStart + 1 == yTarget)) { return South; }
+    else if ((xStart == xTarget) && (yStart + 1 == yTarget))     { return South; }
     else if ((xStart - 1 == xTarget) && (yStart + 1 == yTarget)) { return SouthWest; }
-    else if ((xStart - 1 == xTarget) && (yStart == yTarget)) { return West; }
+    else if ((xStart - 1 == xTarget) && (yStart == yTarget))     { return West; }
     else if ((xStart - 1 == xTarget) && (yStart - 1 == yTarget)) { return NorthWest; }
     else return Error;
 }
@@ -95,5 +95,39 @@ bool gameEnded(Board *board)
         return true;
     return false;
     
+}
+
+bool declareWinner(Board *board)
+{
+    if(calculatePossibleMoves(board, board->ballX, board->ballY) == 0)
+        return !board->playerOnMove;
+    if(board->ballY == 0)
+        return true;
+    return false;
+}
+void boardCatchUpToMoves(Board* board)
+{
+    board->playerOnMove = 0;
+    int i = 0;
+    board->ballX = board->width/2;
+    board->ballY = board->height/2;
+    while(i < board->it)
+    {
+        if(board->moves[i] == '#')
+        {
+            board->playerOnMove = !board->playerOnMove;
+        }
+        else if(board->moves[i] != ' ')
+        {
+            Direction direction = board->moves[i] - '0';
+            uint32_t coords = directionToCoords(direction);
+            *boardDirectionUsedAt(board, board->ballX, board->ballY, direction) = 1;
+            board->ballX += getXCoordFromInt(coords);
+            board->ballY += getYCoordFromInt(coords);
+            *boardDirectionUsedAt(board, board->ballX, board->ballY, oppositeDirection(direction)) = 1;
+            *boardVisitedAt(board, board->ballX, board->ballY) = 1;
+        }
+        ++i;
+    }
 }
 

@@ -1,5 +1,57 @@
 #include "draw.h"
 
+void drawDirectionUsedLines(cairo_t* cr, Board *board, double squareSize, int x, int y)
+{
+
+
+    if(y == board->height-2 && (x == (board->width/2 + 1) ||  x == (board->width/2 - 1) || x == (board->width/2)))
+    {
+        if(*boardDirectionUsedAt(board, x, y, SouthWest) && x != (board->width/2 - 1)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x - squareSize, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, South)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, SouthEast) && x != (board->width/2 + 1)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x + squareSize, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, East)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x + squareSize, squareSize*y);
+        }
+    }
+    else
+    {
+        if(*boardDirectionUsedAt(board, x, y, SouthWest) && x != 0 && y != board->height-2 && !(x == (board->width/2 - 1) && y == 0)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x - squareSize, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, South) && y != board->height-2) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, SouthEast) && x != board->width - 1 && y != board->height-2 && !(x == (board->width/2 + 1) && y == 0)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x + squareSize, squareSize*y + squareSize);
+        }
+        if(*boardDirectionUsedAt(board, x, y, East) && x != board->width - 1 && !(x == (board->width/2 + 1) && y == 0)) 
+        {
+            cairo_move_to(cr, squareSize*x, squareSize*y);
+            cairo_line_to(cr, squareSize*x + squareSize, squareSize*y);
+        }
+    }
+}
+
 void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer userData)
 {
     Board *board = ((ActivationData*)userData)->board;
@@ -27,54 +79,20 @@ void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer use
     cairo_set_source_rgb(cr, 0, 0, 255);
     cairo_set_line_width(cr, 2);
 
-    cairo_move_to(cr, squareSize*(((board->width)/2)-1), squareSize);
-    cairo_line_to(cr, squareSize*(((board->width)/2)-1), 0);
-
-    cairo_move_to(cr, squareSize*(((board->width)/2)-1),0);
-    cairo_line_to(cr, squareSize*(((board->width)/2)+1), 0);
-
-    cairo_move_to(cr, squareSize*(((board->width)/2)+1), 0);
-    cairo_line_to(cr, squareSize*(((board->width)/2)+1), squareSize);
+    drawDirectionUsedLines(cr, board, squareSize, (((board->width)/2)-1), 0);
+    drawDirectionUsedLines(cr, board, squareSize, (((board->width)/2)), 0);
+    drawDirectionUsedLines(cr, board, squareSize, (((board->width)/2)+1), 0);
 
     for(int y = 1; y < board->height-1; ++y)
     {
         for(int x = 0; x < board->width; ++x)
         {
-            if(*boardDirectionUsedAt(board, x, y, West) && x != 0)
-            {
-                cairo_move_to(cr, squareSize*x, squareSize*y);
-                cairo_line_to(cr, squareSize*x - squareSize, squareSize*y);
-            }
-            if(*boardDirectionUsedAt(board, x, y, SouthWest) && x != 0 && y != board->height-2) 
-            {
-                cairo_move_to(cr, squareSize*x, squareSize*y);
-                cairo_line_to(cr, squareSize*x - squareSize, squareSize*y + squareSize);
-            }
-            if(*boardDirectionUsedAt(board, x, y, South) && y != board->height-2) 
-            {
-                cairo_move_to(cr, squareSize*x, squareSize*y);
-                cairo_line_to(cr, squareSize*x, squareSize*y + squareSize);
-            }
-            if(*boardDirectionUsedAt(board, x, y, SouthEast) && x != board->width - 1 && y != board->height-2) 
-            {
-                cairo_move_to(cr, squareSize*x, squareSize*y);
-                cairo_line_to(cr, squareSize*x + squareSize, squareSize*y + squareSize);
-            }
-            if(*boardDirectionUsedAt(board, x, y, East) && x != board->width - 1 ) 
-            {
-                cairo_move_to(cr, squareSize*x, squareSize*y);
-                cairo_line_to(cr, squareSize*x + squareSize, squareSize*y);
-            }
+            drawDirectionUsedLines(cr, board, squareSize, x, y);
         }
     }
-    cairo_move_to(cr, squareSize*(((board->width)/2)-1), (board->height-2)*squareSize);
-    cairo_line_to(cr, squareSize*(((board->width)/2)-1), (board->height-1)*squareSize);
+    cairo_move_to(cr, (board->width/2 - 1)*squareSize, (board->height - 1)*squareSize);
+    cairo_line_to(cr, (board->width/2 + 1)*squareSize, (board->height - 1)*squareSize);
 
-    cairo_move_to(cr, squareSize*(((board->width)/2)-1),(board->height-1)*squareSize);
-    cairo_line_to(cr, squareSize*(((board->width)/2)+1), (board->height-1)*squareSize);
-
-    cairo_move_to(cr, squareSize*(((board->width)/2)+1), (board->height-1)*squareSize);
-    cairo_line_to(cr, squareSize*(((board->width)/2)+1), (board->height-2)*squareSize);
     cairo_stroke(cr);
 
     // drawing possible moves section

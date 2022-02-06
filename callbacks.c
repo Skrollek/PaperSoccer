@@ -54,7 +54,7 @@ void increaseBoardSizeHeight(GtkButton *button, gpointer userData)
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->height-3, number, 10);
+        char number[5]; sprintf(number, "%d", data->board->height-3);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -71,7 +71,7 @@ void decreaseBoardSizeHeight(GtkButton *button, gpointer userData)
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->height-3, number, 10);
+        char number[5]; sprintf(number, "%d", data->board->height-3);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -87,7 +87,7 @@ void increaseBoardSizeWidth(GtkButton *button, gpointer userData)
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->width-1, number, 10);
+        char number[5]; sprintf(number, "%d", data->board->width-1);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -103,7 +103,7 @@ void decreaseBoardSizeWidth(GtkButton *button, gpointer userData)
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->width-1, number, 10);
+        char number[5]; sprintf(number, "%d", data->board->width-1);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
     }
@@ -254,7 +254,7 @@ void loadMovesFromFile(GtkWindow *widget, gpointer userData)
         char newText[16]; strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         int i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        char number[5]; itoa(data->board->width-1, number, 10);
+        char number[5]; sprintf(number, "%d", data->board->width-1);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
 
@@ -262,7 +262,7 @@ void loadMovesFromFile(GtkWindow *widget, gpointer userData)
         strcpy(newText, gtk_label_get_label(GTK_LABEL(label)));
         i = 16;
         while(newText[--i] != ':') newText[i] = 0;  
-        itoa(data->board->height-3, number, 10);
+        sprintf(number, "%d", data->board->height-3);
         strcat(newText, number);
         gtk_label_set_label(GTK_LABEL(label), newText);
 

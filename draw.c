@@ -54,6 +54,7 @@ void drawDirectionUsedLines(cairo_t* cr, Board *board, double squareSize, int x,
 
 void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer userData)
 {
+    ActivationData *data = (ActivationData*)userData;
     Board *board = ((ActivationData*)userData)->board;
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 2);
@@ -119,4 +120,7 @@ void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer use
     cairo_arc(cr, squareSize*(board->ballX), squareSize*(board->ballY), 4, 0, 6.2830);
     cairo_fill_preserve(cr);
     cairo_stroke(cr);
+    gtk_window_present(GTK_WINDOW(data->mainWindow));
+    gtk_window_present(GTK_WINDOW(data->secondaryWindow));
+
 }
